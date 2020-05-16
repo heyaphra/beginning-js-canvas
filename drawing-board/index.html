@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HTML5 Canvas Drawing Board</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <h1>HTML5 Canvas Drawing Board</h1>
+    <canvas width="550" height="400" id="drawing-board">
+      If you can read this, your browser doesn't support HTML5 Canvas :[
+    </canvas>
+    <script>
+      //  Store the canvas element in a variable
+      const canvas = document.getElementById("drawing-board");
+
+      // Get the graphics rendering context
+      const context = canvas.getContext("2d");
+
+      // Get the width and height of the element
+      const { width, height } = canvas;
+
+      // Set the CSS dimensions via JavaScript
+      // To insure the element dimensions match the rendering context dimensions
+      canvas.style.width = width;
+      canvas.style.height = height;
+
+      // Create an object that represents the mouse
+      // We want it to store the xy coords of where the mouse is currently,
+      // as well as its previous position, and whether the mouse is pressed or not
+      let mouse = {
+        currX: null,
+        currY: null,
+        prevX: null,
+        prevY: null,
+        down: false,
+      };
+
+      // Helper function that scales the mouse xy coords relative to the canvas element
+      // It gets the size of the canvas relative to the viewport using getBoundingClientRect()
+      // Then returns an array of xy coords properly scaled to the canvas
+      function scaleMouseToCanvas(mouseX, mouseY) {
+        const rect = canvas.getBoundingClientRect();
+        return [Math.round(mouseX - rect.left), Math.round(mouseY - rect.top)];
+      }
+
+      // Handle mousedown
+      canvas.onmousedown = function (event) {
+        // Use scaleMouseToCanvas() to store the mouse XY coords into variables
+        const [mouseX, mouseY] = scaleMouseToCanvas(event.pageX, event.pageY);
+        // Use them to track the mouse's current XY position, as well as its current pressed state
+        // (hint: use the object defined above!)
+        mouse.currX = mouseX;
+        mouse.currY = mouseY;
+        mouse.down = true;
+        // Start a new path
+        context.beginPath();
+        // Move to the current XY coords
+        context.moveTo(mouseX, mouseY);
+      };
+
+      // Handle mousemove
+      canvas.onmousemove = function (event) {
+        // If the mouse is down, execute code that will do the following:
+        if (mouse.down) {
+          // Use scaleMouseToCanvas() to store mouse XY coords into variables
+          const [mouseX, mouseY] = scaleMouseToCanvas(event.pageX, event.pageY);
+          // Update the mouse object
+          // currX and currY should now be moved to prevX and prevY
+          mouse.prevX = mouse.x;
+          mouse.prevY = mouse.y;
+          // currX and currY should now be updated with the newest values you just grabbed
+          mouse.currX = mouseX;
+          mouse.currY = mouseY;
+          // Now that the context has moved to prevX and prevY,
+          // draw a line to currX and currY
+          context.lineTo(mouse.currX, mouse.currY);
+          // Don't forget to call context.stroke() :)
+          context.stroke();
+        }
+      };
+
+      // Handle mouseup
+      canvas.onmouseup = function (event) {
+        // Close the path
+        context.closePath();
+        // Reset the fields in the mouse object to their initial values
+        mouse.down = false;
+        mouse.currX = null;
+        mouse.currY = null;
+        mouse.prevX = null;
+        mouse.prevY = null;
+      };
+
+      /* Congrats! You've finished your drawing board! You don't have to stop here...
+       * ===========================================================================================
+       * - Make buttons that change the color of the brush
+       * - Make an erase button    
+       * - Make a button that lets the user download the image they draw
+       * - Feeling ambitious? Use CSS and JavaScript to make the canvas mobile-responsive
+       * - Feeling REALLY ambitious? Use WebSockets to create a live collaborative drawing board
+       */
+    </script>
+  </body>
+</html>
